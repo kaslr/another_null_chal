@@ -172,8 +172,8 @@ add_topic('vic.tim', 0x18, b'/bin/sh', 12)
 add_topic('vic.tim', 0xf0, p64(__free_hook-0x8), 12)
 ```
 
-these next allocs n frees r crucial to the tcache poisoning. having freed chunk B previously, we realloc it n fill the chunk to itʼs max .. this overflows a null byte into the size field of the next chunk which happens to be C .. & E! now weʼve shrunk the size of E to `0x100` which means freein E wld populate the `0x100` tcache!! but why do this ? well since C & E point to the same location we canʼt jus free C and then E ; this wld result in a double free n havin no option to edit a topic a lil creativity is needed . i initially thought to use the unsorted bin but it seemed like overkill .. why not jus leverage the null byte overflow again to shirnk the chunk size frm `0x170` to `0x100` then freein E wld populate the appropriate bin... putting the same chunk in 2 different bins.
-& thatʼs what i did. now all thatʼs left is to get a chunk frm the `0x100`, write some address n this wld automatically poison the head node of the `0x170` tcache , effectively pointin itʼs fd pointer to an address of our choosing. a good candidate is the hooks, __free_hook to be precise . thereʼs a slight issue tho __free_hook isnʼt aligned ! well we donʼt gaf shift the pointer back 8 bytes , write 8 bytes of shit & an address we like (e.g system) n any call to free wld trigger the hook -- giving code execution.
+these next allocs n frees r crucial to the tcache poisoning. having freed chunk B previously, we realloc it n fill the chunk to itʼs max .. this overflows a null byte into the size field of the next chunk which happens to be C .. & E! now weʼve shrunk the size of E to `0x100` which means freein E wld populate the `0x100` tcache!! but why do this ? well since C & E point to the same location we canʼt jus free C and then E ; this wld result in a double free n havin no option to edit a topic a lil creativity is needed . i initially thought to use the unsorted bin but it seemed like overkill .. why not jus leverage the null byte overflow again to shrink the chunk size frm `0x170` to `0x100` then freein E wld populate the appropriate bin... putting the same chunk in 2 different bins.
+& thatʼs what i did. now all thatʼs left is to get a chunk frm the `0x100` tcache, write some address n this wld automatically poison the head node of the `0x170` tcache , effectively pointin itʼs fd pointer to an address of our choosing. a good candidate is the hooks, __free_hook to be precise . thereʼs a slight issue tho __free_hook isnʼt aligned ! well we donʼt gaf , shift the pointer back 8 bytes , write 8 bytes of shit & an address we like (e.g system) n any call to free wld trigger the hook -- giving code execution.
 also we see a sneaky chunk there with the content `/bin/sh` , thatʼs our old buddy, chunk A.
 
 ```python
@@ -189,6 +189,7 @@ delete_topic(6)
 ```
 
 the 2 frees do nothin other than give us space for 2 allocs .. then we make 2 allocs ; we donʼt care much for the first but know that thatʼs chunk C .. the second is the prize. the first 8 bytes of that address point to __morecore_hook but we also donʼt care bout that weʼre interested in the next 8 bytes -- __free_hook.
+
 blah blah we overwrite the hook with system, and free chunk A, which is a pointer to the string `/bin/sh` .. this triggers __free_hook which effectivly calls `system` with `/bin/sh` passed in .. ultimately popping a shell!
 
-i had fun with this one tbh & i hope u the reader do too.
+i had fun with this one tbh & i hope u the reader does too.
