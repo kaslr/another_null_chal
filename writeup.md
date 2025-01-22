@@ -116,12 +116,12 @@ for i in range(0, 7):
 
 weʼve been heap feng shuiʼng tf out this whole thing so we do more grooming stuff.
 as u can see these allocs populate the `0x90` & `0x200` bytes tcache but thereʼs also 2 important frees to examine.. `delete_topic(1)` &  `delete_topic(2)` ; these r chunk B & D .. if u remember Bʼs new size is `0x90` (plus chunk metadata) n having filled the `0x90` tcache , it gets put in the unsorted bin. the next free is D whose in-use bit wasnʼt set after allocatin B & C (new chunk) -- this free triggers the consolidation & weʼve therefore overlapped C while itʼs still in use.
-the next allocs 7 `0x90` allocs r taken from the tcache & any other wld use the unsorted bin.
+the next 7 `0x90` allocs r taken from the tcache & any other wld use the unsorted bin.
 also the alloc n frees for the `0x200` chunks is to make sure we donʼt add the consolidatin chunk to the tcache.
 
 peepin Bʼs size field shows weʼve consolidated backwards . now itʼll be treated as a large chunk even if C , still used, lies in this memory region.
 
-![step_5]([image](https://github.com/kaslr/another_null_chal/blob/main/step_5.PNG))
+![step_5](https://github.com/kaslr/another_null_chal/blob/main/step_5.PNG)
 
 B, C & D r now a single large chunk . any use of C now wld be a use after free. we can leverage this to leak pointers from libc to defeat ASLR.
 
