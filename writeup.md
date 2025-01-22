@@ -79,7 +79,7 @@ add_topic('vic.tim', 0x80, b'the 128 byte buffer', 12)
 add_topic('vic.tim', 0x60, b'the 0x60 byte buffer', 12)
 ```
 
-these next allocatiosn r from the unsorted bin , they exhaust the bin & now weʼve got 4 chunks that r relevant to the exploit.
+these next allocations r from the unsorted bin , they exhaust the bin & now weʼve got 4 chunks that r relevant to the exploit.
 
 - A - used to shrink Bʼs size in the freelist
 - B - original B chunk , shrunk in the freelist n also split to alloc the new C
@@ -128,7 +128,7 @@ B, C & D r now a single large chunk . any use of C now wld be a use after free. 
 ```python
 add_topic('vic.tim', 0x80, b'info l3ak <3 .....', 12)
 ```
-this alloc tricks malloc into splittin the large chunk , servin the requested sized chunk to B & updatin the `fd` & `bk` of the remainder chunk in the bin (chunk Cʼs data region) to a piointer to the `main_arena` struct , which is a sructure in libcʼs .data section. when we then show the contents of chunk C , weʼll be leaking a libc pointer which can be used to calculate the base address of libc.
+this alloc tricks malloc into splittin the large chunk , servin the requested sized chunk to B & updatin the `fd` & `bk` of the remainder chunk in the bin (chunk Cʼs data region) to a pointer to the bin header in the `main_arena` struct , which is a sructure in libcʼs .data section. when we then show the contents of chunk C , weʼll be leaking a libc pointer which can be used to calculate the base address of libc.
 
 ```python
 show_topic(3)
