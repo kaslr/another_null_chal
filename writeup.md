@@ -4,6 +4,7 @@ this particular exploit alters the size field of a free chunk , shrinkin its siz
 
 iʼll quote my previous writeup a few times to show how my approach solvin this differed from that based on the constraints i had.
 the biggest issue was the fact that i cldnʼt write null bytes for the input data , as this wld cause the input to terminate at the null byte ; additionally the total num of allocations allowed was 10 which was a slight pain to deal with
+
 also unlike the binary in my previous writeup , which allowed a user to provide an index for the structure, this didnʼt , the index was selected by loopin thru the list until we reach an index with no structure in the topic list  ; while this wasnʼt that big of an issue , it was annoying.
 
 havin laid it all out iʼll detail my approach to solvin the chal.
