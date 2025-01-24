@@ -1,16 +1,15 @@
 # NULL2RCE: ANOTHER POISON \0 BYTE VULNERABILITY.
 
 
-Given the vulnerability is an off-by-null error, I'll focus directly on the core exploit process, similar to my previous write-up. The main idea is to consolidate chunks to overlap a chunk that is in use. This is done by leveraging the overflow to modify chunk metadata, regardless of whether the chunk is free or in use. In this specific exploit, the size field of a free chunk is altered, shrinking its size within the free list. This approach is used multiple times throughout the exploit.
+Given the vulnerability is an off-by-null error, I’ll focus directly on the core exploit process, similar to my previous write-up. The main idea is to consolidate chunks to overlap a chunk that is in use. This is done by leveraging the overflow to modify chunk metadata, regardless of whether the chunk is free or in use. In this specific exploit, the size field of a free chunk is altered, shrinking its size within the free list. This approach is used multiple times throughout the exploit.
 
-iʼll quote my previous writeup a few times to show how my approach solvin this differed from that based on the constraints i had.
-the biggest issue was the fact that i cldnʼt write null bytes for the input data , as this wld cause the input to terminate at the null byte ; additionally the total num of allocations allowed was 10 which was a slight pain to deal with
+I’ll reference my previous writeup several times to demonstrate how my approach to solving this differed due to the constraints I faced. The biggest challenge was that I couldn’t write null bytes for the input data, as this would cause the input to terminate at the null byte. Additionally, the total number of allocations allowed was limited to 10, which added a slight complication.
 
-also unlike the binary in my previous writeup , which allowed a user to provide an index for the structure, this didnʼt , the index was selected by loopin thru the list until we reach an index with no structure in the topic list  ; while this wasnʼt that big of an issue , it was annoying.
+Additionally, unlike the binary in my previous writeup, which allowed the user to provide an index for the structure, this one did not. Instead, the index was selected by looping through the list until an index with no structure in the topic list was reached. While this wasn’t a major issue, it was certainly annoying.
 
-havin laid it all out iʼll detail my approach to solvin the chal.
+Having laid it all out, I'll detail my approach to solving the challenge.
 
-i start of makin 3 allocations, same as my prev writeup but this uses a different approach for consolidation
+I start by making three allocations, similar to my previous writeup, but this uses a different approach for consolidation.
 
 ```python
 add_topic('0vflw1', 0x18, b'ill start slow.', 120)
