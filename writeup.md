@@ -1,4 +1,4 @@
-*NULL2RCE*: ANOTHER POISON \0 BYTE VULNERABILITY.
+# NULL2RCE: ANOTHER POISON \0 BYTE VULNERABILITY.
 
 
 since u alr know the vuln is an off by null iʼll jus go into the meats n potatoes of the exploit process
