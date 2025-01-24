@@ -1,9 +1,7 @@
 # NULL2RCE: ANOTHER POISON \0 BYTE VULNERABILITY.
 
 
-since u alr know the vuln is an off by null iʼll jus go into the meats n potatoes of the exploit process
-like my previous writeup , the idea is to consolidate chunks to overlap a chunk in use ; this is achieved by leveragin the overflow to edit chunk metadata , whether free or in use.
-this particular exploit alters the size field of a free chunk , shrinkin its size in the free list .. youʼll see this approach used a few times in the exploit
+Given the vulnerability is an off-by-null error, I'll focus directly on the core exploit process, similar to my previous write-up. The main idea is to consolidate chunks to overlap a chunk that is in use. This is done by leveraging the overflow to modify chunk metadata, regardless of whether the chunk is free or in use. In this specific exploit, the size field of a free chunk is altered, shrinking its size within the free list. This approach is used multiple times throughout the exploit.
 
 iʼll quote my previous writeup a few times to show how my approach solvin this differed from that based on the constraints i had.
 the biggest issue was the fact that i cldnʼt write null bytes for the input data , as this wld cause the input to terminate at the null byte ; additionally the total num of allocations allowed was 10 which was a slight pain to deal with
