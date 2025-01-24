@@ -7,7 +7,7 @@ I’ll reference my previous writeup several times to demonstrate how my approac
 
 Additionally, unlike the binary in my previous writeup, which allowed the user to provide an index for the structure, this one did not. Instead, the index was selected by looping through the list until an index with no structure in the topic list was reached. While this wasn’t a major issue, it was certainly annoying.
 
-Having laid it all out, I'll detail my approach to solving the challenge.
+Having laid it all out, I’ll detail my approach to solving the challenge.
 
 I start by making three allocations, similar to my previous writeup, but this uses a different approach for consolidation.
 
@@ -17,11 +17,11 @@ add_topic('0vflw2', 0x188, b'\x41'*0xf0+p64(0x101), 120)
 add_topic('vic.tim', 0x1f0, b'ah shit .....', 12)
 ```
 
-heres the state of the heap after these 3 allocations ; also pay mind to the data of chunk B (middle), ill explain its significance in a minute.
+Here’s the state of the heap after these three allocations. Please pay attention to the data in chunk B (the middle one); I’ll explain its significance in a minute.
 
 ![step_1](https://github.com/kaslr/another_null_chal/blob/main/step_1.PNG)
 
-tho not shown here in the output due to formatting,  thereʼs the value `0x101` @ chunk Bʼs address + offset `0xf0` , why this is important will become apparent in time. also note that this value itself shld be `0x100` bue due to the fact that i canʼt write null bytes , a lil creativity is needed ; this is what the next aloocations n free does.
+Though not shown here in the output due to formatting, there's the value `0x101` at chunk B’s address + offset `0xf0`. The importance of this will become clear in time. Also note that this value should be `0x100`, but due to the inability to write null bytes, a little creativity is needed. This is what the next allocations and free operations will address.
 
 value @ chunk B addr + offset before:
 ```python
@@ -39,7 +39,9 @@ pwndbg> x/gx 0x55746b553280+0xf0
 0x55746b553370: 0x0000000000000100
 ```
 
-whoa thatʼs crazy but why does that work? this shld be prettty easy to figure but if u canʼt wrap ur head around , look closely .. u see how the 1st allocation writes `0xf0` bytes but the second  writes `0xef` ? well since the binary is little endian , @ offset `0xf0`  we have the value `0x101` after the first alloc, the first byte is `0x01` but the second writes 1 byte less which means the first byte @ chunk B address (`0x55746b553280`) plus `0xf0` will have a null byte due to the binaryʼs use of `strcpy`.
+Whoa, that’s intriguing! But why does it work? It should be fairly straightforward to figure out. If you're having trouble understanding, look closely... 
+
+Notice how the first allocation writes `0xf0` bytes, but the second writes `0xef` bytes? Since the binary is little-endian, at offset `0xf0`, we have the value `0x101` after the first allocation. The first byte is `0x01`, but the second writes one byte less. This means the first byte at chunk B address (`0x55746b553280`) plus `0xf0` will have a null byte due to the binary's use of `strcpy`.
 
 ```python
 for i in range(0, 7):
@@ -48,7 +50,7 @@ for i in range(0, 7):
 for i in range(3, 10):
     delete_topic(i)
 ```
-these next allocations & frees populate the tcache , so subsequent frees of size `0x190` can be put in the unsorted bin ; notice i said `0x190` sized chunks even tho i request `0x180` bytes .. the additional `0x10` bytes is chunk metadata.
+These next allocations and frees populate the tcache, so subsequent frees of size `0x190` can be put in the unsorted bin. Notice I said `0x190` sized chunks even though I request `0x180` bytes—the additional `0x10` bytes is chunk metadata.
 
 ```python
 delete_topic(0)
