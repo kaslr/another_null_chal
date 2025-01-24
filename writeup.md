@@ -1,5 +1,4 @@
-# ZER02HERO: ANOTHER POISON \0 BYTE VULNERABILITY.
-
+# ZER02HERO: ANOTHER POISON NULL BYTE OVERFLOW
 
 Given the vulnerability is an off-by-null error, I’ll focus directly on the core exploit process, similar to my previous write-up. The main idea is to consolidate chunks to overlap a chunk that is in use. This is done by leveraging the overflow to modify chunk metadata, regardless of whether the chunk is free or in use. In this specific exploit, the size field of a free chunk is altered, shrinking its size within the free list. This approach is used multiple times throughout the exploit.
 
