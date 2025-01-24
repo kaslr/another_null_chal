@@ -1,3 +1,6 @@
+*NULL2RCE*: ANOTHER POISON \0 BYTE VULNERABILITY.
+
+
 since u alr know the vuln is an off by null iʼll jus go into the meats n potatoes of the exploit process
 like my previous writeup , the idea is to consolidate chunks to overlap a chunk in use ; this is achieved by leveragin the overflow to edit chunk metadata , whether free or in use.
 this particular exploit alters the size field of a free chunk , shrinkin its size in the free list .. youʼll see this approach used a few times in the exploit
