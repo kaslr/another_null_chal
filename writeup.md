@@ -38,7 +38,7 @@ pwndbg> x/gx 0x55746b553280+0xf0
 0x55746b553370: 0x0000000000000100
 ```
 
-Whoa, that’s intriguing! But why does it work? It should be fairly straightforward to figure out. If you're having trouble understanding, look closely... 
+Whoa, that’s intriguing! But why does it work? It should be fairly straightforward to figure out. If you’re having trouble understanding, look closely... 
 
 Notice how the first allocation writes `0xf0` bytes, but the second writes `0xef` bytes? Since the binary is little-endian, at offset `0xf0`, we have the value `0x101` after the first allocation. The first byte is `0x01`, but the second writes one byte less. This means the first byte at chunk B address (`0x55746b553280`) plus `0xf0` will have a null byte due to the binary's use of `strcpy`.
 
